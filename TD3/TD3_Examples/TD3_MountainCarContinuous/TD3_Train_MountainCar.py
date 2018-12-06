@@ -11,6 +11,12 @@ import time
 # ===========================
 #   Actor TD3		pi(s)
 # ===========================
+# ​    """
+# ​    Input to the network is the state, output is the action
+# ​    under a deterministic policy.
+# ​    The output layer activation is a tanh to keep the action
+# ​    between -action_bound and action_bound
+# ​    """
 class Actor(object):
 	def __init__(self, sess, state_dim, action_dim, action_bound, learning_rate, tau, batch_size):
 		self.sess = sess
@@ -61,8 +67,12 @@ class Actor(object):
 
 
 # ===========================
-#   Critic TD3		Q(s,a)
+#   Critic TD3      Q(s,a)
 # ===========================
+#   """
+#    Input to the network is the state and action, output is Q(s,a).
+#    The action must be obtained from the output of the Actor network.
+#    """
 class Critic(object):
 	def __init__(self, sess, state_dim, action_dim, learning_rate, tau, actor_inputs_scaled):
 		self.sess = sess
