@@ -1,0 +1,2 @@
+model_checkpoint_path: "Hopper-v2"
+all_model_checkpoint_paths: "Hopper-v2"

@@ -11,17 +11,12 @@ import time
 # ===========================
 #   Actor DDPG		pi(s)
 # ===========================
- """
-
-​    Input to the network is the state, output is the action
-
-​    under a deterministic policy.
-
-​    The output layer activation is a tanh to keep the action
-
-​    between -action_bound and action_bound
-
-​"""
+#  """
+# ​    Input to the network is the state, output is the action
+# ​    under a deterministic policy.
+# ​    The output layer activation is a tanh to keep the action
+# ​    between -action_bound and action_bound
+# ​"""
 class Actor(object):
 	def __init__(self, sess, state_dim, action_dim, action_bound, learning_rate, tau, batch_size):
 		self.sess = sess
@@ -74,13 +69,10 @@ class Actor(object):
 # ===========================
 #   Critic DDPG		Q(s,a)
 # ===========================
-"""
-
-​    Input to the network is the state and action, output is Q(s,a).
-
-​    The action must be obtained from the output of the Actor network.
-
-​"""
+# """
+# ​    Input to the network is the state and action, output is Q(s,a).
+# ​    The action must be obtained from the output of the Actor network.
+# ​"""
 class Critic(object):
 	def __init__(self, sess, state_dim, action_dim, learning_rate, tau, actor_inputs_scaled):
 		self.sess = sess
@@ -142,7 +134,6 @@ class Critic(object):
         })
 
 
-
 #===========================
 #  Tensorflow Summary Ops
 #===========================
@@ -151,24 +142,23 @@ def test_summaries():
     tf.summary.scalar("Test Reward", episode_r)
     episode_timesteps = tf.Variable(0.)
     tf.summary.scalar("Steps before DONE", episode_timesteps)
-
+ 
     summary_vars = [episode_r, episode_timesteps]
     summary_ops = tf.summary.merge_all()
 
     return summary_ops, summary_vars
 
 
-def test(sess, env, actor):
-
-	# Set up summary Ops
-	summary_ops, summary_vars = test_summaries()
-	sess.run(tf.global_variables_initializer())
-	writer = tf.summary.FileWriter(args['test_dir'], sess.graph)
+def test(sess, env, actor, summary_ops, summary_vars):
 
 	s = env.reset()
 	done = False
 	episode_r = 0
 	episode_timesteps = 0
+
+	# test book-keeping
+	writer = tf.summary.FileWriter(args['test_dir'])
+	writer.add_graph(sess.graph)
 
 	while not done:
 		env.render()
@@ -178,11 +168,13 @@ def test(sess, env, actor):
 		episode_r += r
 		s = s2
 		episode_timesteps += 1
+		
+		# # test book-keeping
 		summary_str = sess.run(summary_ops, feed_dict={
 											summary_vars[0]: np.asscalar(episode_r),
 											summary_vars[1]: episode_timesteps})
 		writer.add_summary(summary_str,episode_timesteps)
-		writer.flush()
+	writer.flush()
 	print("During evaluation the mean episode reward is {}, and it took {} steps before Done".format(np.asscalar(episode_r), episode_timesteps))	
 
 
@@ -207,11 +199,17 @@ def main(args):
 		critic = Critic(sess, state_dim, action_dim,
 							   float(args['critic_lr']), float(args['tau']),
 							   actor.out_scaled)
+
+		# Set up summary Ops
+		summary_ops, summary_vars = test_summaries()
         
+		# load pre-trained model
 		saver = tf.train.Saver()
 		saver.restore(sess, os.path.join(args['save_dir'], args['env']))			   
-		test(sess, env, actor)
-		time.sleep(5)
+
+		# evaluate trained model
+		test(sess, env, actor, summary_ops, summary_vars)
+		time.sleep(2)
 
 
 if __name__ == '__main__':

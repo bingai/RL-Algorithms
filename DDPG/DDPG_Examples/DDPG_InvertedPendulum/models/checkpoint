@@ -1,0 +1,2 @@
+model_checkpoint_path: "InvertedPendulum-v2"
+all_model_checkpoint_paths: "InvertedPendulum-v2"
