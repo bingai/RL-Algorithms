@@ -36,7 +36,15 @@ class Actor(object):
 			[self.target_network_params[i].assign(tf.multiply(self.network_params[i], self.tau) +
 												  tf.multiply(self.target_network_params[i], 1. - self.tau))
 				for i in range(len(self.target_network_params))]         
-
+	
+	# def create_actor_network(self, scope, reuse = False):
+	# 	with tf.variable_scope(scope, reuse = reuse):
+	# 		net = self.input
+	# 		net = slim.fully_connected(net, 400, activation_fn = tf.nn.relu, normalizer_fn=slim.batch_norm)
+	# 		net = slim.fully_connected(net, 300, activation_fn = tf.nn.relu, normalizer_fn=slim.batch_norm)
+	# 		net = slim.fully_connected(net, self.a_dim, activation_fn = tf.nn.tanh)
+	# 		out_scaled = tf.multiply(net, self.action_bound)
+	# 		return net, out_scaled
 	def create_actor_network(self, scope, reuse = False):
 		with tf.variable_scope(scope, reuse = reuse):
 			net = self.input
